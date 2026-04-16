@@ -1,0 +1,136 @@
+{
+  "plan_year": 2026,
+  "base_url": "https://www.cms.gov",
+  "data_cms_base": "https://data.cms.gov",
+  "sources": {
+    "landscape": {
+      "description": "CY2026 Landscape file - all MA and Part D plans with premiums, plan type, SNP type, county",
+      "url": "https://www.cms.gov/files/zip/cy2026-landscape-202603.zip",
+      "format": "csv_in_zip",
+      "category": "landscape",
+      "priority": 1
+    },
+    "enrollment_cpsc": {
+      "description": "Monthly Enrollment by Contract/Plan/State/County - April 2026",
+      "url": "https://www.cms.gov/files/zip/monthly-enrollment-cpsc-april-2026.zip",
+      "format": "csv_in_zip",
+      "category": "enrollment",
+      "priority": 2
+    },
+    "pbp_benefits": {
+      "description": "PBP Benefits 2026 - approved MA and Part D benefits for all orgs",
+      "url": "https://www.cms.gov/files/zip/pbp-benefits-2026.zip",
+      "format": "csv_in_zip",
+      "category": "benefits",
+      "priority": 3
+    },
+    "star_ratings": {
+      "description": "2026 Star Ratings Data Tables",
+      "url": "https://www.cms.gov/files/zip/2026-star-ratings-data-tables.zip",
+      "format": "csv_in_zip",
+      "category": "star_ratings",
+      "priority": 4
+    },
+    "display_measures": {
+      "description": "2026 Display Measures",
+      "url": "https://www.cms.gov/files/zip/2026-display-measures.zip",
+      "format": "csv_in_zip",
+      "category": "star_ratings",
+      "priority": 5
+    },
+    "ma_service_area": {
+      "description": "MA Contract Service Area by State/County - April 2026",
+      "url": "https://www.cms.gov/files/zip/ma-contract-service-area-state-county-april-2026.zip",
+      "format": "csv_in_zip",
+      "category": "service_areas",
+      "priority": 6
+    },
+    "plan_crosswalk": {
+      "description": "2026 Part C&D Plan Crosswalk",
+      "url": "https://www.cms.gov/files/zip/plan-crosswalk-2026.zip",
+      "format": "csv_in_zip",
+      "category": "crosswalk",
+      "priority": 7
+    },
+    "star_ratings_fact_sheet": {
+      "description": "2026 Star Ratings Fact Sheet",
+      "url": "https://www.cms.gov/files/document/2026-star-ratings-fact-sheet.pdf",
+      "format": "pdf",
+      "category": "docs",
+      "priority": 10
+    },
+    "star_ratings_technical_notes": {
+      "description": "2026 Star Ratings Technical Notes",
+      "url": "https://www.cms.gov/files/document/2026-star-ratings-technical-notes.pdf",
+      "format": "pdf",
+      "category": "docs",
+      "priority": 11
+    },
+    "star_ratings_measures": {
+      "description": "2026 Star Ratings Measures and Weights",
+      "url": "https://www.cms.gov/files/document/2026-star-ratings-measures.pdf",
+      "format": "pdf",
+      "category": "docs",
+      "priority": 12
+    },
+    "formulary_puf": {
+      "description": "Monthly PDP Formulary and Pharmacy Network PUF - March 2026",
+      "url": "https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/monthly-prescription-drug-plan-formulary-and-pharmacy-network-information",
+      "api_url": "https://data.cms.gov/data-api/v1/dataset/d747c942-940f-4994-8835-dfe287f7bca5/data",
+      "format": "api_or_zip",
+      "category": "formulary",
+      "priority": 8,
+      "note": "Large file ~2.5GB. Use API for targeted queries or download full ZIP from data.cms.gov"
+    },
+    "formulary_puf_methodology": {
+      "description": "PUF Record Layout and Methodology 2026",
+      "url": "https://data.cms.gov/sites/default/files/2025-10/8f1d8b42-bfd1-4f9c-b86d-b92af0c6f3d5/Methodology-PUF-2026.pdf",
+      "format": "pdf",
+      "category": "docs",
+      "priority": 13
+    },
+    "formulary_puf_record_layout": {
+      "description": "PUF Record Layout 2026",
+      "url": "https://data.cms.gov/sites/default/files/2025-10/0564eb37-402d-4110-bd98-2d5399dc30e7/PUFRecordLayout-2026.pdf",
+      "format": "pdf",
+      "category": "docs",
+      "priority": 14
+    },
+    "ma_plan_directory": {
+      "description": "MA Plan Directory - April 2026",
+      "url": "https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/ma-plan-directory",
+      "format": "csv_in_zip",
+      "category": "directory",
+      "priority": 15
+    },
+    "snp_data": {
+      "description": "SNP Comprehensive Report",
+      "url": "https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/special-needs-plan-snp-data",
+      "format": "csv_in_zip",
+      "category": "snp",
+      "priority": 9
+    },
+    "exchange_benefits_puf": {
+      "description": "2026 Exchange PUF - Benefits and Cost Sharing (if extending to under-65)",
+      "url": "https://www.cms.gov/marketplace/resources/data/public-use-files",
+      "format": "csv_in_zip",
+      "category": "exchange",
+      "priority": 20,
+      "note": "Optional - for ACA/Marketplace plan comparison if expanding beyond Medicare"
+    }
+  },
+  "additional_monthly_enrollment": {
+    "description": "CMS publishes enrollment files monthly. URL pattern for CPSC enrollment.",
+    "url_pattern": "https://www.cms.gov/files/zip/monthly-enrollment-cpsc-{month}-{year}.zip",
+    "months": ["january", "february", "march", "april"]
+  },
+  "additional_service_area": {
+    "description": "Service area files are also monthly",
+    "ma_url_pattern": "https://www.cms.gov/files/zip/ma-contract-service-area-state-county-{month}-{year}.zip",
+    "pdp_url_pattern": "https://www.cms.gov/files/zip/pdp-contract-service-area-state-county-{month}-{year}.zip"
+  },
+  "data_cms_apis": {
+    "enrollment_dashboard": "https://data.cms.gov/tools/medicare-enrollment-dashboard",
+    "provider_data": "https://data.cms.gov/provider-data/"
+  }
+}
