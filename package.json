@@ -1,0 +1,46 @@
+{
+  "name": "medicare-assistant",
+  "version": "2.0.0",
+  "description": "Medicare Assistant - Vector DB + Chat UI powered by real CMS public data",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "setup:db": "node scripts/setup-db.js",
+    "cms:fetch-manifests": "node scripts/fetch-cms-manifests.js",
+    "cms:download": "node scripts/download-cms-files.js",
+    "cms:etl:landscape": "node src/etl/landscape.js",
+    "cms:etl:enrollment": "node src/etl/enrollment.js",
+    "cms:etl:benefits": "node src/etl/benefits.js",
+    "cms:etl:star-ratings": "node src/etl/star-ratings.js",
+    "cms:etl:service-areas": "node src/etl/service-areas.js",
+    "cms:etl:crosswalk": "node src/etl/crosswalk.js",
+    "cms:etl:snp": "node src/etl/snp.js",
+    "cms:etl:formulary": "node src/etl/formulary.js",
+    "cms:etl:all": "npm run cms:etl:landscape && npm run cms:etl:enrollment && npm run cms:etl:benefits && npm run cms:etl:star-ratings && npm run cms:etl:service-areas && npm run cms:etl:crosswalk && npm run cms:etl:snp && npm run cms:etl:formulary",
+    "cms:full-pipeline": "npm run cms:fetch-manifests && npm run cms:download && npm run cms:etl:all",
+    "ingest:docs": "node src/ingest/load-docs.js",
+    "ingest:embed": "node src/ingest/embed-chunks.js",
+    "build:ui": "cd client && npm run build",
+    "start": "NODE_ENV=production node src/server.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/static": "^7.0.4",
+    "@fastify/multipart": "^8.3.0",
+    "fastify": "^4.28.1",
+    "pg": "^8.12.0",
+    "pgvector": "^0.2.0",
+    "openai": "^4.56.0",
+    "csv-parse": "^5.5.6",
+    "node-fetch": "^3.3.2",
+    "adm-zip": "^0.5.14",
+    "xlsx": "^0.18.5",
+    "dotenv": "^16.4.5",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
