@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: medicare
+      POSTGRES_USER: medicare
+      POSTGRES_PASSWORD: medicare_pass
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U medicare']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgresql://medicare:medicare_pass@db:5432/medicare
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      EMBED_MODEL: text-embedding-3-small
+      CHAT_MODEL: gpt-4o
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+
+volumes:
+  pgdata:
