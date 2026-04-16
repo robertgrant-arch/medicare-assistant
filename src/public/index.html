@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicare Assistant</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
+    .header { background: #1a73e8; color: white; padding: 16px 24px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .stats { margin-left: auto; font-size: 13px; opacity: 0.85; }
+    .container { flex: 1; display: flex; max-width: 1200px; width: 100%; margin: 0 auto; overflow: hidden; }
+    .sidebar { width: 280px; background: white; border-right: 1px solid #e0e0e0; padding: 16px; overflow-y: auto; }
+    .sidebar h3 { font-size: 14px; color: #666; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .filter-group { margin-bottom: 16px; }
+    .filter-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #333; }
+    .filter-group input, .filter-group select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+    .chat-area { flex: 1; display: flex; flex-direction: column; background: #f8f9fa; }
+    .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .message { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+    .message.user { align-self: flex-end; background: #1a73e8; color: white; border-bottom-right-radius: 4px; }
+    .message.assistant { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .message.assistant pre { background: #f5f5f5; padding: 8px; border-radius: 4px; overflow-x: auto; margin: 8px 0; font-size: 12px; }
+    .message .sources { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #888; }
+    .message .sources span { background: #f0f0f0; padding: 2px 8px; border-radius: 12px; margin-right: 4px; display: inline-block; margin-bottom: 4px; }
+    .input-area { padding: 16px 20px; background: white; border-top: 1px solid #e0e0e0; }
+    .input-row { display: flex; gap: 8px; }
+    .input-row input { flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 24px; font-size: 14px; }
+    .input-row input:focus { outline: none; border-color: #1a73e8; }
+    .input-row button { padding: 12px 24px; background: #1a73e8; color: white; border: none; border-radius: 24px; font-size: 14px; cursor: pointer; font-weight: 500; }
+    .input-row button:hover { background: #1557b0; }
+    .input-row button:disabled { background: #ccc; cursor: not-allowed; }
+    .typing { color: #888; font-style: italic; padding: 8px 16px; }
+    .welcome { text-align: center; padding: 40px; color: #666; }
+    .welcome h2 { font-size: 24px; margin-bottom: 8px; color: #333; }
+    .welcome p { margin-bottom: 16px; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+    .suggestions button { padding: 8px 16px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; cursor: pointer; }
+    .suggestions button:hover { border-color: #1a73e8; color: #1a73e8; }
+    @media (max-width: 768px) { .sidebar { display: none; } .container { max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+    <h1>Medicare Assistant</h1>
+    <div class="stats" id="stats">Loading data...</div>
+  </div>
+  <div class="container">
+    <div class="sidebar">
+      <h3>Filter Plans</h3>
+      <div class="filter-group">
+        <label>State</label>
+        <input type="text" id="filterState" placeholder="e.g. CA, TX, FL" maxlength="2">
+      </div>
+      <div class="filter-group">
+        <label>County</label>
+        <input type="text" id="filterCounty" placeholder="e.g. Los Angeles">
+      </div>
+      <div class="filter-group">
+        <label>FIPS Code</label>
+        <input type="text" id="filterFips" placeholder="e.g. 06037">
+      </div>
+      <div class="filter-group">
+        <label>Plan Type</label>
+        <select id="filterPlanType">
+          <option value="">All Types</option>
+          <option value="HMO">HMO</option>
+          <option value="PPO">PPO</option>
+          <option value="PFFS">PFFS</option>
+          <option value="PDP">PDP (Drug Only)</option>
+          <option value="SNP">SNP</option>
+        </select>
+      </div>
+      <h3 style="margin-top:24px">Quick Actions</h3>
+      <div class="filter-group">
+        <button onclick="loadStats()" style="width:100%;padding:8px;background:#f0f0f0;border:1px solid #ddd;border-radius:6px;cursor:pointer">Refresh Stats</button>
+      </div>
+    </div>
+    <div class="chat-area">
+      <div class="messages" id="messages">
+        <div class="welcome">
+          <h2>Medicare Assistant</h2>
+          <p>Ask me anything about Medicare plans, benefits, premiums, drug coverage, and more.</p>
+          <p style="font-size:13px;color:#999">Powered by real CMS data for plan year 2026</p>
+          <div class="suggestions">
+            <button onclick="askSuggestion(this)">What MA plans are available in Miami-Dade County, FL?</button>
+            <button onclick="askSuggestion(this)">Compare $0 premium plans in Texas</button>
+            <button onclick="askSuggestion(this)">Which plans cover Eliquis?</button>
+            <button onclick="askSuggestion(this)">Show me 5-star rated plans in California</button>
+            <button onclick="askSuggestion(this)">What is the cheapest PDP plan in New York?</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-row">
+          <input type="text" id="chatInput" placeholder="Ask about Medicare plans, benefits, drugs..." onkeydown="if(event.key==='Enter')sendMessage()">
+          <button id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const messages = document.getElementById('messages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    let history = [];
+
+    function getFilters() {
+      return {
+        state: document.getElementById('filterState').value.toUpperCase() || undefined,
+        county: document.getElementById('filterCounty').value || undefined,
+        fips: document.getElementById('filterFips').value || undefined,
+        plan_type: document.getElementById('filterPlanType').value || undefined
+      };
+    }
+
+    function addMessage(content, role, sources) {
+      const welcome = messages.querySelector('.welcome');
+      if (welcome) welcome.remove();
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = content.replace(/\n/g, '<br>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      if (sources && sources.length > 0) {
+        const srcDiv = document.createElement('div');
+        srcDiv.className = 'sources';
+        srcDiv.innerHTML = 'Sources: ' + sources.filter(s => s.plan_name).map(s => `<span>${s.plan_name}</span>`).join('');
+        div.appendChild(srcDiv);
+      }
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+
+    async function sendMessage() {
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      chatInput.value = '';
+      sendBtn.disabled = true;
+      addMessage(msg, 'user');
+      history.push({ role: 'user', content: msg });
+      const assistantDiv = addMessage('', 'assistant');
+      let fullContent = '';
+      let sources = [];
+      try {
+        const resp = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, history: history.slice(-10), filters: getFilters() })
+        });
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content) {
+                fullContent += data.content;
+                assistantDiv.innerHTML = fullContent.replace(/\n/g, '<br>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                messages.scrollTop = messages.scrollHeight;
+              }
+              if (data.done) sources = data.sources || [];
+              if (data.error) fullContent += '\nError: ' + data.error;
+            } catch(e) {}
+          }
+        }
+        if (sources.length > 0) {
+          const srcDiv = document.createElement('div');
+          srcDiv.className = 'sources';
+          srcDiv.innerHTML = 'Sources: ' + sources.filter(s => s.plan_name).map(s => `<span>${s.plan_name}</span>`).join('');
+          assistantDiv.appendChild(srcDiv);
+        }
+        history.push({ role: 'assistant', content: fullContent });
+      } catch(err) {
+        assistantDiv.textContent = 'Error: ' + err.message;
+      }
+      sendBtn.disabled = false;
+      chatInput.focus();
+    }
+
+    function askSuggestion(btn) {
+      chatInput.value = btn.textContent;
+      sendMessage();
+    }
+
+    async function loadStats() {
+      try {
+        const resp = await fetch('/api/stats');
+        const data = await resp.json();
+        document.getElementById('stats').textContent = `Plans: ${Number(data.plans||0).toLocaleString()} | Vectors: ${Number(data.vector_chunks||0).toLocaleString()}`;
+      } catch(e) {
+        document.getElementById('stats').textContent = 'Connect to load stats';
+      }
+    }
+    loadStats();
+  </script>
+</body>
+</html>
